@@ -16,6 +16,32 @@ const routes = [
         component: () => import('@/views/home/index.vue')
       },
       // 其他子路由...
+      {
+        path: 'users', // 父路由路径
+        children: [
+          {
+            path: 'list', // 子路由路径
+            component: () => import('@/views/home/index.vue')
+          },
+          {
+            path: 'role', // 子路由路径
+            component: () => import('@/views/home/index.vue')
+          }
+        ]
+      },
+      {
+        path: 'settings', // 父路由路径
+        children: [
+          {
+            path: 'base',
+            component: () => import('@/views/home/index.vue')
+          },
+          {
+            path: 'security',
+            component: () => import('@/views/home/index.vue')
+          },
+        ]
+      }
     ]
   }
 ]
