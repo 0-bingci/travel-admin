@@ -33,12 +33,16 @@ const routes = [
         path: 'settings', // 父路由路径
         children: [
           {
-            path: 'base',
-            component: () => import('@/views/home/index.vue')
+            path: 'order',
+            component: () => import('@/views/order/index.vue')
           },
           {
-            path: 'security',
-            component: () => import('@/views/home/index.vue')
+            path: 'trip',
+            component: () => import('@/views/trip/index.vue')
+          },
+          {
+            path: 'attraction',
+            component: () => import('@/views/attraction/index.vue')
           },
         ]
       }

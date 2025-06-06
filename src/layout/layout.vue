@@ -103,17 +103,22 @@ const menuConfig = [
   {
     index: "2",
     icon: Setting,
-    title: "系统设置",
+    title: "业务管理",
     children: [
       {
-        index: "/settings/base",
+        index: "/settings/order",
         icon: Document,
-        title: "基础设置",
+        title: "订单管理",
       },
       {
-        index: "/settings/security",
+        index: "/settings/trip",
         icon: Document,
-        title: "安全设置",
+        title: "行程管理",
+      },
+      {
+        index: "/settings/attraction",
+        icon: Document, 
+        title: "景点管理",
       },
     ],
   },

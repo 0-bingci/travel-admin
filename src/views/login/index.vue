@@ -5,20 +5,24 @@
         <span>logo</span>
       </div>
 
-      <h1 class="title">Welcome back!</h1>
-      <p class="subtitle">Log in</p>
+      <h1 class="title">{{ isRegister ? '管理后台注册' : '管理后台登录' }}</h1>
+      <p class="subtitle"></p>
+      <div class="toggle-mode">
+      </div>
 
       <el-form
         :model="form"
         :rules="rules"
         ref="loginFormRef"
         label-width="80px"
+        v-if="!isRegister"
       >
-        <el-form-item placeholder="用户名" prop="username" label-width="0">
-          <el-input v-model="form.username" autocomplete="off" />
+        <el-form-item  prop="username" label-width="0">
+          <el-input v-model="form.username" placeholder="用户名" autocomplete="off" />
         </el-form-item>
-        <el-form-item placeholder="密码" prop="password" label-width="0">
+        <el-form-item  prop="password" label-width="0">
           <el-input
+          placeholder="密码"
             v-model="form.password"
             type="password"
             autocomplete="off"
@@ -27,13 +31,52 @@
         <el-form-item label-width="0">
           <el-button
             type="primary"
-            @click="onLogin"
+            @click="onSubmit"
             :loading="loading"
             style="width: 100%"
-            >登录</el-button
+            >{{ isRegister ? '注册' : '登录' }}</el-button
           >
         </el-form-item>
       </el-form>
+      <el-form
+        :model="form"
+        :rules="rules"
+        ref="loginFormRef"
+        label-width="80px"
+        v-if="isRegister"
+      >
+      <el-form-item  prop="username" label-width="0">
+          <el-input v-model="form.username" autocomplete="off" placeholder="请输入用户名"/>
+        </el-form-item>
+        <el-form-item  prop="password" label-width="0" >
+          <el-input
+          placeholder="请输入密码"
+            v-model="form.password"
+            type="password"
+            autocomplete="off"
+          />
+        </el-form-item>
+        <el-form-item  prop="confirmPassword" label-width="0">
+          <el-input
+          placeholder="重复输入密码"
+            v-model="form.confirmPassword"
+            type="password"
+            autocomplete="off"
+          />
+        </el-form-item>
+        <el-form-item label-width="0">
+          <el-button
+            type="primary"
+            @click="onSubmit"
+            :loading="loading"
+            style="width: 100%"
+            >{{ isRegister ? '注册' : '登录' }}</el-button
+          >
+        </el-form-item>
+      </el-form>
+      <span @click="toggleMode">
+          {{ isRegister ? '已有账号？去登录' : '没有账号？去注册' }}
+        </span>
     </div>
   </div>
 </template>
@@ -44,9 +87,11 @@ import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 
 const router = useRouter();
+const isRegister = ref(false);
 const form = ref({
   username: "",
   password: "",
+  confirmPassword: ""
 });
 const loading = ref(false);
 const loginFormRef = ref(null);
@@ -54,19 +99,42 @@ const loginFormRef = ref(null);
 const rules = {
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  confirmPassword: [
+    { required: true, message: "请确认密码", trigger: "blur" },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== form.value.password) {
+          callback(new Error('两次输入密码不一致'));
+        } else {
+          callback();
+        }
+      },
+      trigger: "blur"
+    }
+  ]
 };
 
-const onLogin = () => {
+const toggleMode = () => {
+  isRegister.value = !isRegister.value;
+  loginFormRef.value.resetFields();
+};
+
+const onSubmit = () => {
   loginFormRef.value.validate((valid) => {
     if (valid) {
       loading.value = true;
-      // 模拟登录请求
+      // 模拟请求
       setTimeout(() => {
         loading.value = false;
-        // 这里可以保存token等
-        // localStorage.setItem('token', 'xxx')
-        ElMessage.success("登录成功");
-        router.push("/");
+        if (isRegister.value) {
+          ElMessage.success("注册成功");
+          toggleMode();
+        } else {
+          // 这里可以保存token等
+          // localStorage.setItem('token', 'xxx')
+          ElMessage.success("登录成功");
+          router.push("/");
+        }
       }, 1000);
     }
   });
