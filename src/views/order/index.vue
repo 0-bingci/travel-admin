@@ -98,11 +98,26 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 import FilterBar from "@/components/FilterBar/index.vue";
+import getOrderList from "@/api/order";
+//获取数据
+const loadOrderData = async () => {
+  try {
+    const res = await getOrderList();
+    console.log(res.data);
+  } catch (error) {
+    console.error("加载订单数据失败:", error);
+  }
+};
+onMounted(() => {
+  // Load initial data
+  loadOrderData();
+  console.log("User management component mounted");
+});
 const filterOptions = ref({
   destinations: [
     { label: "北京", value: "beijing" },
@@ -356,11 +371,6 @@ const handleCurrentChange = (val) => {
   // Implement page change logic
 };
 
-// Lifecycle
-onMounted(() => {
-  // Load initial data
-  console.log("User management component mounted");
-});
 </script>
 
 <style scoped>
