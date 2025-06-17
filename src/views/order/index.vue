@@ -103,11 +103,11 @@ import { ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 import FilterBar from "@/components/FilterBar/index.vue";
-import getOrderList from "@/api/order";
+import { getOrderList } from "../../api/order";
 //获取数据
 const loadOrderData = async () => {
   try {
-    const res = await getOrderList();
+    const res = await getOrderList(1);
     console.log(res.data);
   } catch (error) {
     console.error("加载订单数据失败:", error);

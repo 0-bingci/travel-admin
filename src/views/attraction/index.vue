@@ -14,34 +14,16 @@
         :header-cell-style="{ backgroundColor: '#f5f7fa', color: '#606266' }"
       >
         <el-table-column prop="id" label="景点编号" :min-width="80" align="center" />
-        
-        <el-table-column prop="目的地" label="城市" :min-width="80" align="center">
-          <template #default="scope">
-            <span class="open-id">{{ scope.row.openId }}</span>
-          </template>
-        </el-table-column>
-        
-        <el-table-column label="客服电话" :min-width="80" align="center">
-          <template #default="scope">
-            <el-avatar :size="40" :src="scope.row.avatar" />
-          </template>
-        </el-table-column>
-        
-        <el-table-column prop="人数" label="用户名" :min-width="80" align="center" />
-        <el-table-column prop="付款金额" label="年龄" :min-width="80" align="center" />
-        
-        
-        <el-table-column prop="createTime" label="创建时间" :min-width="80" align="center" />
-        
-        <el-table-column label="订单状态" :min-width="80" align="center">
-          <template #default="scope">
-            <el-switch 
-              v-model="scope.row.status" 
-              @change="handleStatusChange(scope.row)"
-            />
-          </template>
-        </el-table-column>
-        
+        <el-table-column prop="city" label="城市" :min-width="80" align="center"></el-table-column>       
+        <el-table-column prop="sightName" label="景点的中文名称" :min-width="80" align="center"></el-table-column>
+        <el-table-column prop="sightEnglishName" label="景点的英文名称" :min-width="80" align="center"></el-table-column>
+        <el-table-column prop="sightIntroduction" label="景点的简要介绍" :min-width="80" align="center" />
+        <el-table-column prop="sightImage" label="景点图片" :min-width="80" align="center" />
+        <el-table-column prop="location" label="景点的地理位置" :min-width="80" align="center" />
+        <el-table-column prop="visitWay" label="游览该景点的方式" :min-width="80" align="center" />
+        <el-table-column prop="suggestTime" label="游览该景点的建议时长" :min-width="80" align="center" />
+        <el-table-column prop="openingTime" label="景点的开放时间" :min-width="80" align="center" />
+        <el-table-column prop="tip" label="游览该景点的小贴士" :min-width="80" align="center" />
         <el-table-column label="操作" :min-width="80" align="center">
           <template #default="scope">
             <el-button 
@@ -77,9 +59,23 @@
     </div>
   </template>
   
-  <script setup>
+  <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { ElMessage } from 'element-plus'
+
+  import { getAttractionList } from '../../api/attraction'
+  //获取数据
+  const TableData = ref([])
+  const loadAttractionData = async (data: any) => { 
+    const res = await getAttractionList(data);
+    TableData.value = res.data.data;
+    console.log(res.data);
+    
+
+  }
+  onMounted(() => {
+    loadAttractionData()
+  })
   
   // Reactive data
   const activeTab = ref('all')
@@ -102,150 +98,20 @@
       status: true
     },
     {
-      id: 2,
-      openId: 'oqdo1TuQWn...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年04月07日23:48:38',
-      status: true
-    },
-    {
-      id: 3,
-      openId: 'oqdo1TQqXg...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年04月12日23:09:00',
-      status: true
-    },
-    {
-      id: 4,
-      openId: 'oqdo1X71auE...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '定贤贤',
-      phone: '',
-      age: 28,
-      role: '学员',
-      gender: '女',
-      createTime: '2023年04月10日22:57:07',
-      status: true
-    },
-    {
-      id: 5,
-      openId: 'oqdo1X7-PuoQ...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: 'Angela',
-      phone: '',
-      age: 29,
-      role: '学员',
-      gender: '女',
-      createTime: '2023年05月01日16:59:43',
-      status: true
-    },
-    {
-      id: 6,
-      openId: 'oqdo1TTuW55...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月01日23:11:34',
-      status: true
-    },
-    {
-      id: 7,
-      openId: 'oqdo1X8e7N...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月07日19:09:54',
-      status: true
-    },
-    {
-      id: 8,
-      openId: 'oqdo1X8e7N...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月07日19:09:54',
-      status: true
-    },
-    {
-      id: 9,
-      openId: 'oqdo1X8e7N...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月07日19:09:54',
-      status: true
-    },
-    {
-      id: 10,
-      openId: 'oqdo1X8e7N...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月07日19:09:54',
-      status: true
-    },
-    {
-      id: 11,
-      openId: 'oqdo1X8e7N...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月07日19:09:54',
-      status: true
-    },
-    {
-      id: 12,
-      openId: 'oqdo1X8e7N...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月07日19:09:54',
-      status: true
-    },
-    {
-      id: 13,
-      openId: 'oqdo1X8e7N...',
-      avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png',
-      username: '微信用户',
-      phone: '',
-      age: '',
-      role: '学员',
-      gender: '男',
-      createTime: '2023年05月07日19:09:54',
-      status: true
-    }
-  ])
+      "id": 100,
+      "sightName": "贰燕",
+      "destinationId": 67,
+      "sightEnglishName": "田梓诚",
+      "sightIntroduction": "non minim enim",
+      "sightImage": "https://loremflickr.com/400/400?lock=361952308714645",
+      "location": "exercitation",
+      "visitWay": "dolore",
+      "suggestTime": "2025-01-28 07:10:31",
+      "openingTime": "2024-12-12 05:29:36",
+      "city": "贵宁市",
+      "tip": "142.202.3.115",
+      "isDeleted": 28
+    },])
   
   
   const handleStatusChange = (row) => {

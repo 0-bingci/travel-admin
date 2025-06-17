@@ -1,4 +1,5 @@
-import service from "@/utils/request";
-export default function getOrderList(params: any) {
+import service from "../utils/request";
+
+export function getOrderList(params: any) {
   return service.get("/travelOrder/list", params);
 }
