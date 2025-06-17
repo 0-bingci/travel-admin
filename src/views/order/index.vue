@@ -15,74 +15,96 @@
     <!-- User Table -->
     <!-- 订单号 目的地、客服电话、人数、时间、付款金额、订单状态等 -->
     <el-table
-      :data="tableData"
+      :data="TableData"
       style="width: 100%"
       class="user-table"
       :header-cell-style="{ backgroundColor: '#f5f7fa', color: '#606266' }"
     >
       <el-table-column
         prop="id"
+        label="行程id"
+        :min-width="40"
+        align="center"
+      />
+
+      <el-table-column
+        prop="orderNo"
         label="订单号"
         :min-width="80"
         align="center"
       />
-
       <el-table-column
-        prop="目的地"
-        label="目的地"
-        :min-width="80"
+        prop="userId"
+        label="用户id"
+        :min-width="40"
         align="center"
-      >
-        <template #default="scope">
-          <span class="open-id">{{ scope.row.openId }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="客服电话" :min-width="80" align="center">
-        <template #default="scope">
-          <el-avatar :size="40" :src="scope.row.avatar" />
-        </template>
-      </el-table-column>
-
+      />
       <el-table-column
-        prop="人数"
-        label="人数"
+        prop="orderStatus"
+        label="订单状态
+"
         :min-width="80"
         align="center"
       />
       <el-table-column
-        prop="付款金额"
-        label="付款金额"
-        :min-width="80"
+        prop="totalAmount"
+        label="行程id
+"
+        :min-width="40"
         align="center"
       />
-
       <el-table-column
-        prop="createTime"
-        label="创建时间"
-        :min-width="80"
+        prop="destinationId"
+        label="目的地id"
+        :min-width="40"
         align="center"
       />
-
-      <el-table-column label="订单状态" :min-width="80" align="center">
-        <template #default="scope">
-          <el-switch
-            v-model="scope.row.status"
-            @change="handleStatusChange(scope.row)"
-          />
-        </template>
-      </el-table-column>
-
       <el-table-column label="操作" :min-width="80" align="center">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="open">编辑</el-button>
+          <el-button
+            plain
+            @click="dialogFormVisible = true"
+            type="primary"
+            size="small"
+          >
+            编辑
+          </el-button>
           <el-button type="success" size="small" @click="handleView(scope.row)">
-            去看
+            删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-
+    <el-dialog v-model="dialogFormVisible" title="Shipping address" width="500">
+      <el-form :model="form">
+        <el-form-item label="行程id" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="订单号" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="用户id" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="订单状态" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="行程id" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="目的地id" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="dialogFormVisible = false">
+            Confirm
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
     <!-- Pagination -->
     <div class="pagination-wrapper">
       <el-pagination
@@ -99,16 +121,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 import FilterBar from "@/components/FilterBar/index.vue";
 import { getOrderList } from "../../api/order";
+
+const dialogFormVisible = ref(false);
+const formLabelWidth = "140px";
+const form = reactive({
+  name: "",
+  region: "",
+  date1: "",
+  date2: "",
+  delivery: false,
+  type: [],
+  resource: "",
+  desc: "",
+});
 //获取数据
+const TableData = ref([]);
 const loadOrderData = async () => {
   try {
-    const res = await getOrderList(1);
-    console.log(res.data);
+    const res = await getOrderList();
+    TableData.value = res.data.records;
   } catch (error) {
     console.error("加载订单数据失败:", error);
   }
@@ -148,212 +184,6 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(17);
 
-// Table data
-const tableData = ref([
-  {
-    id: 1,
-    openId: "oqdo1TSqgZhv...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年03月30日22:50:29",
-    status: true,
-  },
-  {
-    id: 2,
-    openId: "oqdo1TuQWn...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年04月07日23:48:38",
-    status: true,
-  },
-  {
-    id: 3,
-    openId: "oqdo1TQqXg...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年04月12日23:09:00",
-    status: true,
-  },
-  {
-    id: 4,
-    openId: "oqdo1X71auE...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "定贤贤",
-    phone: "",
-    age: 28,
-    role: "学员",
-    gender: "女",
-    createTime: "2023年04月10日22:57:07",
-    status: true,
-  },
-  {
-    id: 5,
-    openId: "oqdo1X7-PuoQ...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "Angela",
-    phone: "",
-    age: 29,
-    role: "学员",
-    gender: "女",
-    createTime: "2023年05月01日16:59:43",
-    status: true,
-  },
-  {
-    id: 6,
-    openId: "oqdo1TTuW55...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月01日23:11:34",
-    status: true,
-  },
-  {
-    id: 7,
-    openId: "oqdo1X8e7N...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月07日19:09:54",
-    status: true,
-  },
-  {
-    id: 8,
-    openId: "oqdo1X8e7N...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月07日19:09:54",
-    status: true,
-  },
-  {
-    id: 9,
-    openId: "oqdo1X8e7N...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月07日19:09:54",
-    status: true,
-  },
-  {
-    id: 10,
-    openId: "oqdo1X8e7N...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月07日19:09:54",
-    status: true,
-  },
-  {
-    id: 11,
-    openId: "oqdo1X8e7N...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月07日19:09:54",
-    status: true,
-  },
-  {
-    id: 12,
-    openId: "oqdo1X8e7N...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月07日19:09:54",
-    status: true,
-  },
-  {
-    id: 13,
-    openId: "oqdo1X8e7N...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年05月07日19:09:54",
-    status: true,
-  },
-]);
-
-const open = () => {
-  ElMessageBox.prompt("Please input your e-mail", "Tip", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    inputPattern:
-      /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
-    inputErrorMessage: "Invalid Email",
-  })
-    .then(({ value }) => {
-      ElMessage({
-        type: "success",
-        message: `Your email is:${value}`,
-      });
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "Input canceled",
-      });
-    });
-};
-
-const handleStatusChange = (row) => {
-  ElMessage.success(
-    `用户 ${row.username} 状态已${row.status ? "启用" : "禁用"}`
-  );
-};
-
-const handleEdit = (row) => {
-  ElMessage.info(`编辑用户: ${row.username}`);
-  // Implement edit logic here
-};
-
 const handleView = (row) => {
   ElMessage.info(`查看用户: ${row.username}`);
   // Implement view logic here
@@ -370,7 +200,6 @@ const handleCurrentChange = (val) => {
   console.log(`Current page changed to: ${val}`);
   // Implement page change logic
 };
-
 </script>
 
 <style scoped>

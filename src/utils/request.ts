@@ -3,9 +3,6 @@ import axios from 'axios';
 const service = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API||'http://127.0.0.1:4523/m1/6263153-5957223-default',  // 从环境变量中读取
   timeout: 5000, // 请求超时时间
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 export default service;
@@ -36,7 +33,7 @@ service.interceptors.request.use(
       //   return res;
       // }
       console.log(JSON.stringify(res, null, 2));
-      return res;
+      return res.data;
     },
     (error) => {
       // 网络错误、超时等处理
