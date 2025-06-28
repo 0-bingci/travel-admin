@@ -1,7 +1,12 @@
 <template>
   <div class="filter-bar">
-    <el-radio-group :v-model="activeTab" @change="handleTabChange">
-      <el-radio-button v-for="tab in tabs" :key="tab.value" :label="tab.value">
+    <el-radio-group :v-model="activeTab">
+      <el-radio-button 
+        v-for="tab in tabs" 
+        :key="tab.value" 
+        :label="tab.value"
+        @click="tab.handler"
+      >
         {{ tab.label }}
       </el-radio-button>
     </el-radio-group>
@@ -32,24 +37,31 @@ const props = defineProps({
   filterOptions: { type: Object, required: true },
   filters: { 
     type: Array,
+    default: () => []
+  },
+  tabs: {
+    type: Array,
     default: () => [
+      { 
+        value: 'add', 
+        label: '增加',
+        handler: () => console.log('add button clicked')
+      },
+      { 
+        value: 'all', 
+        label: '全部',
+        handler: () => console.log('all button clicked')
+      },
+      { 
+        value: 'filter', 
+        label: '筛选',
+        handler: () => console.log('filter button clicked')
+      }
     ]
   }
 })
 
-const emit = defineEmits(['tab-change', 'sort-change'])
-
-const tabs = ref([
-  { value: 'add', label: '增加' },
-  { value: 'all', label: '全部' },
-  { value: 'filter', label: '筛选' }
-])
-
-
-
-const handleTabChange = (value: string) => {
-  emit('tab-change', value)
-}
+const emit = defineEmits(['sort-change'])
 
 const handleFilterChange = (type: string, value: string) => {
   emit('sort-change', { type, value })

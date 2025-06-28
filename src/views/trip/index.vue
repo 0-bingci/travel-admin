@@ -7,7 +7,7 @@
     <!-- User Table -->
     <!-- 订单号 目的地、客服电话、人数、时间、付款金额、订单状态等 -->
     <el-table
-      :data="tableData"
+      :data="TableData"
       style="width: 100%"
       class="user-table"
       :header-cell-style="{ backgroundColor: '#f5f7fa', color: '#606266' }"
@@ -98,10 +98,10 @@ import { ElMessage } from "element-plus";
 import { getTripList } from "../../api/trip";
 //获取数据
 const TableData = ref([]);
-const loadTripData = async () => {
+const loadTripData = async (data) => {
   try {
-    const res = await getTripList();
-    TableData.value = res.data.records;
+    const res = await getTripList(data);
+    TableData.value = res.data.data.records;
     console.log(TableData.value);
   } catch (error) {
     console.error("加载订单数据失败:", error);
@@ -109,7 +109,7 @@ const loadTripData = async () => {
 };
 onMounted(() => {
   // Load initial data
-  loadTripData();
+  loadTripData({ pageNum: 1 });
   console.log("User management component mounted");
 });
 

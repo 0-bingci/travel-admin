@@ -3,92 +3,213 @@
     <div class="header">
       <h2>景点管理</h2>
     </div>
+    <FilterBar
+    :activeTab="activeTab"
+    :filterOptions="filterOptions"
+    :filters="filters"
+    :tabs="[
+      {
+        value: 'add',
+        label: '新增',
+        handler: handleAdd
+      },
+      {
+        value: 'all',
+        label: '全部',
+        handler: handleAll
+      },
+      {
+        value: 'filter',
+        label: '筛选',
+        handler: handleFilter
+      }
+    ]"
+    @sort-change="handleSortChange"
+  />
 
     <!-- User Table -->
     <!-- 订单号 目的地、客服电话、人数、时间、付款金额、订单状态等 -->
     <el-table
-      :data="tableData"
-      style="width: 100%"
+      :data="TableData"
       class="user-table"
       :header-cell-style="{ backgroundColor: '#f5f7fa', color: '#606266' }"
+      max-heigh="100%"
+      show-header
+      size="medium"
     >
-      <el-table-column
-        prop="id"
-        label="景点编号"
-        :min-width="80"
-        align="center"
-      />
+      <el-table-column prop="id" label="景点编号" width="120" align="center" />
       <el-table-column
         prop="city"
         label="城市"
-        :min-width="80"
+        width="120"
         align="center"
       ></el-table-column>
       <el-table-column
         prop="sightName"
         label="景点的中文名称"
-        :min-width="80"
+        width="120"
         align="center"
       ></el-table-column>
       <el-table-column
         prop="sightEnglishName"
         label="景点的英文名称"
-        :min-width="80"
+        width="120"
         align="center"
       ></el-table-column>
       <el-table-column
         prop="sightIntroduction"
         label="景点的简要介绍"
-        :min-width="80"
+        width="120"
         align="center"
+        :show-overflow-tooltip="true"
       />
       <el-table-column
         prop="sightImage"
         label="景点图片"
-        :min-width="80"
+        width="120"
         align="center"
       />
       <el-table-column
         prop="location"
         label="景点的地理位置"
-        :min-width="80"
+        width="120"
         align="center"
       />
       <el-table-column
         prop="visitWay"
         label="游览该景点的方式"
-        :min-width="80"
+        width="120"
         align="center"
       />
       <el-table-column
         prop="suggestTime"
         label="游览该景点的建议时长"
-        :min-width="80"
+        width="120"
         align="center"
       />
       <el-table-column
         prop="openingTime"
         label="景点的开放时间"
-        :min-width="80"
+        width="120"
         align="center"
       />
       <el-table-column
         prop="tip"
         label="游览该景点的小贴士"
-        :min-width="80"
+        width="120"
+        align="center"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        prop="suggestTime"
+        label="建议游览时长"
+        width="120"
         align="center"
       />
-      <el-table-column label="操作" :min-width="80" align="center">
+      <el-table-column
+        prop="destinationId"
+        label="目的地ID"
+        width="120"
+        align="center"
+      />
+      <el-table-column label="操作" width="120" align="center">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope.row)">
-            编辑
-          </el-button>
-          <el-button type="success" size="small" @click="handleView(scope.row)">
-            去看
-          </el-button>
+          <div style="display: flex; gap: 8px">
+            <el-button
+              type="primary"
+              size="small"
+              @click="openEditDialog(scope.row)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              type="danger"
+              size="small"
+              @click="handleDelete(scope.row)"
+            >
+              删除
+            </el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog
+            title="编辑景点信息"
+            v-model="editDialogVisible"
+            width="50%"
+          >
+            <el-form :model="form" label-width="120px">
+              <el-form-item label="景点名称">
+                <el-input v-model="form.sightName"></el-input>
+              </el-form-item>
+              <el-form-item label="英文名称">
+                <el-input v-model="form.sightEnglishName"></el-input>
+              </el-form-item>
+              <el-form-item label="景点介绍">
+                <el-input
+                  type="textarea"
+                  v-model="form.sightIntroduction"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="景点图片">
+                <el-input v-model="form.sightImage"></el-input>
+              </el-form-item>
+              <el-form-item label="地理位置">
+                <el-input v-model="form.location"></el-input>
+              </el-form-item>
+              <el-form-item label="游览方式">
+                <el-input v-model="form.visitWay"></el-input>
+              </el-form-item>
+              <el-form-item label="建议时长">
+                <el-input v-model="form.suggestTime"></el-input>
+              </el-form-item>
+              <el-form-item label="开放时间">
+                <el-input v-model="form.openingTime"></el-input>
+              </el-form-item>
+              <el-form-item label="小贴士">
+                <el-input type="textarea" v-model="form.tip"></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="editDialogVisible = false">取消</el-button>
+              <el-button type="primary" @click="submitEdit">确定</el-button>
+            </span>
+          </el-dialog>
+          <el-dialog v-model="addDialogVisible" title="添加景点" width="50%">
+            <el-form :model="form" label-width="120px">
+              <el-form-item label="景点名称">
+                <el-input v-model="form.sightName" />
+              </el-form-item>
+              <el-form-item label="英文名称">
+                <el-input v-model="form.sightEnglishName" />
+              </el-form-item>
+              <el-form-item label="景点介绍">
+                <el-input v-model="form.sightIntroduction" type="textarea" />
+              </el-form-item>
+              <el-form-item label="景点图片">
+                <el-input v-model="form.sightImage" />
+              </el-form-item>
+              <el-form-item label="地理位置">
+                <el-input v-model="form.location" />
+              </el-form-item>
+              <el-form-item label="游览方式">
+                <el-input v-model="form.visitWay" />
+              </el-form-item>
+              <el-form-item label="建议时长">
+                <el-input v-model="form.suggestTime" />
+              </el-form-item>
+              <el-form-item label="开放时间">
+                <el-input v-model="form.openingTime" />
+              </el-form-item>
+              <el-form-item label="小贴士">
+                <el-input v-model="form.tip" type="textarea" />
+              </el-form-item>
+            </el-form>
+            <template #footer>
+              <el-button @click="addDialogVisible = false">取消</el-button>
+              <el-button type="primary" @click="submitAdd">确认</el-button>
+            </template>
+          </el-dialog>
 
     <!-- Pagination -->
     <div class="pagination-wrapper">
@@ -107,19 +228,24 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
+import FilterBar from "@/components/FilterBar/index.vue";
 
 import { getAttractionList } from "../../api/attraction";
 //获取数据
 const TableData = ref([]);
 const loadAttractionData = async (data: any) => {
-  const res = await getAttractionList(data);
-  TableData.value = res.data;
-  console.log(TableData);
+  const params = {
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+    ...data,
+  };
+  const res = await getAttractionList(params);
+  TableData.value = res.data.data.records;
+  total.value = res.data.data.total;
 };
 onMounted(() => {
-  const data = { pageNum: 1, pageSize: 10 };
-  loadAttractionData(data);
+  loadAttractionData({ pageNum: 1 });
 });
 
 // Reactive data
@@ -128,64 +254,119 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(17);
 
-// Table data
-const tableData = ref([
-  {
-    id: 1,
-    openId: "oqdo1TSqgZhv...",
-    avatar:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-znUvJcS8noRpeKcj7uIOpfzhQPRYe6.png",
-    username: "微信用户",
-    phone: "",
-    age: "",
-    role: "学员",
-    gender: "男",
-    createTime: "2023年03月30日22:50:29",
-    status: true,
-  },
-  {
-    id: 100,
-    sightName: "贰燕",
-    destinationId: 67,
-    sightEnglishName: "田梓诚",
-    sightIntroduction: "non minim enim",
-    sightImage: "https://loremflickr.com/400/400?lock=361952308714645",
-    location: "exercitation",
-    visitWay: "dolore",
-    suggestTime: "2025-01-28 07:10:31",
-    openingTime: "2024-12-12 05:29:36",
-    city: "贵宁市",
-    tip: "142.202.3.115",
-    isDeleted: 28,
-  },
-]);
+const editDialogVisible = ref(false);
+const currentRow = ref({});
+const form = ref({
+  id: 0,
+  sightName: "",
+  sightEnglishName: "",
+  sightIntroduction: "",
+  sightImage: "",
+  location: "",
+  visitWay: "",
+  suggestTime: "",
+  openingTime: "",
+  tip: "",
+});
 
-const handleStatusChange = (row) => {
-  ElMessage.success(
-    `用户 ${row.username} 状态已${row.status ? "启用" : "禁用"}`
-  );
+const openEditDialog = (row) => {
+  currentRow.value = row;
+  form.value = {
+    id: row.id,
+    sightName: row.sightName,
+    sightEnglishName: row.sightEnglishName,
+    sightIntroduction: row.sightIntroduction,
+    sightImage: row.sightImage,
+    location: row.location,
+    visitWay: row.visitWay,
+    suggestTime: row.suggestTime,
+    openingTime: row.openingTime,
+    tip: row.tip,
+  };
+  editDialogVisible.value = true;
 };
 
-const handleEdit = (row) => {
-  ElMessage.info(`编辑用户: ${row.username}`);
-  // Implement edit logic here
+const handleDelete = async (row) => {
+  try {
+    await ElMessageBox.confirm("确定要删除该景点吗？", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
+    await $http.delete(`/sightDetail/${row.id}`);
+    ElMessage.success("删除成功");
+    loadAttractionData({}); // 刷新列表
+  } catch (error) {
+    if (error !== "cancel") {
+      ElMessage.error("删除失败");
+    }
+  }
 };
 
-const handleView = (row) => {
-  ElMessage.info(`查看用户: ${row.username}`);
-  // Implement view logic here
+const submitEdit = async () => {
+  try {
+    // await updateSightDetail(form.value);
+    ElMessage.success("修改成功");
+    editDialogVisible.value = false;
+    loadAttractionData({}); // 刷新列表
+  } catch (error) {
+    ElMessage.error("修改失败");
+  }
+};
+
+const addDialogVisible = ref(false);
+const form1 = ref({
+  id: 0,
+  sightName: '',
+  sightEnglishName: '',
+  sightIntroduction: '',
+  sightImage: '',
+  location: '',
+  visitWay: '',
+  suggestTime: '',
+  openingTime: '',
+  tip: ''
+});
+
+const handleAdd = () => {
+  addDialogVisible.value = true;
+  form1.value = {
+    id: 0,
+    sightName: '',
+    sightEnglishName: '',
+    sightIntroduction: '',
+    sightImage: '',
+    location: '',
+    visitWay: '',
+    suggestTime: '',
+    openingTime: '',
+    tip: ''
+  };
+};
+
+const submitAdd = async () => {
+  try {
+    const response = await $http.post('/sightDetail', form.value);
+    if (response.code === 200) {
+      ElMessage.success('新增景点成功');
+      addDialogVisible.value = false;
+      loadAttractionData({});
+    } else {
+      ElMessage.error(response.message || '新增景点失败');
+    }
+  } catch (error) {
+    ElMessage.error('请求失败：' + error.message);
+  }
 };
 
 const handleSizeChange = (val) => {
   pageSize.value = val;
-  console.log(`Page size changed to: ${val}`);
-  // Implement page size change logic
+  loadAttractionData({});
 };
 
 const handleCurrentChange = (val) => {
   currentPage.value = val;
-  console.log(`Current page changed to: ${val}`);
-  // Implement page change logic
+  loadAttractionData({});
 };
 
 // Lifecycle
@@ -221,6 +402,17 @@ onMounted(() => {
   background-color: white;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+  max-height: 80vh;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.user-table .el-table__cell {
+  padding: 12px 0;
+}
+
+.user-table .el-table__header .el-table__cell {
+  white-space: nowrap;
 }
 
 .open-id {

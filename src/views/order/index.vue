@@ -141,17 +141,17 @@ const form = reactive({
 });
 //获取数据
 const TableData = ref([]);
-const loadOrderData = async () => {
+const loadOrderData = async (data) => {
   try {
-    const res = await getOrderList();
-    TableData.value = res.data.records;
+    const res = await getOrderList(data);
+    TableData.value = res.data.data.records;
   } catch (error) {
     console.error("加载订单数据失败:", error);
   }
 };
 onMounted(() => {
   // Load initial data
-  loadOrderData();
+  loadOrderData(1);
   console.log("User management component mounted");
 });
 const filterOptions = ref({
