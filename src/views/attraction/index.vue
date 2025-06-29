@@ -4,28 +4,27 @@
       <h2>景点管理</h2>
     </div>
     <FilterBar
-    :activeTab="activeTab"
-    :filterOptions="filterOptions"
-    :filters="filters"
-    :tabs="[
-      {
-        value: 'add',
-        label: '新增',
-        handler: handleAdd
-      },
-      {
-        value: 'all',
-        label: '全部',
-        handler: handleAll
-      },
-      {
-        value: 'filter',
-        label: '筛选',
-        handler: handleFilter
-      }
-    ]"
-    @sort-change="handleSortChange"
-  />
+      :activeTab="activeTab"
+      :filterOptions="filterOptions"
+      :filters="filters"
+      :tabs="[
+        {
+          value: 'add',
+          label: '新增',
+          handler: handleAdd,
+        },
+        {
+          value: 'all',
+          label: '重置',
+          handler: handleAll,
+        },
+        {
+          value: 'filter',
+          label: '筛选',
+          handler: handleFilter,
+        },
+      ]"
+    />
 
     <!-- User Table -->
     <!-- 订单号 目的地、客服电话、人数、时间、付款金额、订单状态等 -->
@@ -112,7 +111,7 @@
         width="120"
         align="center"
       />
-      <el-table-column label="操作" width="120" align="center">
+      <el-table-column label="操作" width="140" align="center">
         <template #default="scope">
           <div style="display: flex; gap: 8px">
             <el-button
@@ -133,83 +132,76 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog
-            title="编辑景点信息"
-            v-model="editDialogVisible"
-            width="50%"
-          >
-            <el-form :model="form" label-width="120px">
-              <el-form-item label="景点名称">
-                <el-input v-model="form.sightName"></el-input>
-              </el-form-item>
-              <el-form-item label="英文名称">
-                <el-input v-model="form.sightEnglishName"></el-input>
-              </el-form-item>
-              <el-form-item label="景点介绍">
-                <el-input
-                  type="textarea"
-                  v-model="form.sightIntroduction"
-                ></el-input>
-              </el-form-item>
-              <el-form-item label="景点图片">
-                <el-input v-model="form.sightImage"></el-input>
-              </el-form-item>
-              <el-form-item label="地理位置">
-                <el-input v-model="form.location"></el-input>
-              </el-form-item>
-              <el-form-item label="游览方式">
-                <el-input v-model="form.visitWay"></el-input>
-              </el-form-item>
-              <el-form-item label="建议时长">
-                <el-input v-model="form.suggestTime"></el-input>
-              </el-form-item>
-              <el-form-item label="开放时间">
-                <el-input v-model="form.openingTime"></el-input>
-              </el-form-item>
-              <el-form-item label="小贴士">
-                <el-input type="textarea" v-model="form.tip"></el-input>
-              </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="editDialogVisible = false">取消</el-button>
-              <el-button type="primary" @click="submitEdit">确定</el-button>
-            </span>
-          </el-dialog>
-          <el-dialog v-model="addDialogVisible" title="添加景点" width="50%">
-            <el-form :model="form" label-width="120px">
-              <el-form-item label="景点名称">
-                <el-input v-model="form.sightName" />
-              </el-form-item>
-              <el-form-item label="英文名称">
-                <el-input v-model="form.sightEnglishName" />
-              </el-form-item>
-              <el-form-item label="景点介绍">
-                <el-input v-model="form.sightIntroduction" type="textarea" />
-              </el-form-item>
-              <el-form-item label="景点图片">
-                <el-input v-model="form.sightImage" />
-              </el-form-item>
-              <el-form-item label="地理位置">
-                <el-input v-model="form.location" />
-              </el-form-item>
-              <el-form-item label="游览方式">
-                <el-input v-model="form.visitWay" />
-              </el-form-item>
-              <el-form-item label="建议时长">
-                <el-input v-model="form.suggestTime" />
-              </el-form-item>
-              <el-form-item label="开放时间">
-                <el-input v-model="form.openingTime" />
-              </el-form-item>
-              <el-form-item label="小贴士">
-                <el-input v-model="form.tip" type="textarea" />
-              </el-form-item>
-            </el-form>
-            <template #footer>
-              <el-button @click="addDialogVisible = false">取消</el-button>
-              <el-button type="primary" @click="submitAdd">确认</el-button>
-            </template>
-          </el-dialog>
+    <el-dialog title="编辑景点信息" v-model="editDialogVisible" width="50%">
+      <el-form :model="form" label-width="120px">
+        <el-form-item label="景点名称">
+          <el-input v-model="form.sightName"></el-input>
+        </el-form-item>
+        <el-form-item label="英文名称">
+          <el-input v-model="form.sightEnglishName"></el-input>
+        </el-form-item>
+        <el-form-item label="景点介绍">
+          <el-input type="textarea" v-model="form.sightIntroduction"></el-input>
+        </el-form-item>
+        <el-form-item label="景点图片">
+          <el-input v-model="form.sightImage"></el-input>
+        </el-form-item>
+        <el-form-item label="地理位置">
+          <el-input v-model="form.location"></el-input>
+        </el-form-item>
+        <el-form-item label="游览方式">
+          <el-input v-model="form.visitWay"></el-input>
+        </el-form-item>
+        <el-form-item label="建议时长">
+          <el-input v-model="form.suggestTime"></el-input>
+        </el-form-item>
+        <el-form-item label="开放时间">
+          <el-input v-model="form.openingTime"></el-input>
+        </el-form-item>
+        <el-form-item label="小贴士">
+          <el-input type="textarea" v-model="form.tip"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitEdit">确定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog v-model="addDialogVisible" title="添加景点" width="50%">
+      <el-form :model="form1" label-width="120px">
+        <el-form-item label="景点名称">
+          <el-input v-model="form1.sightName" />
+        </el-form-item>
+        <el-form-item label="英文名称">
+          <el-input v-model="form1.sightEnglishName" />
+        </el-form-item>
+        <el-form-item label="景点介绍">
+          <el-input v-model="form1.sightIntroduction" type="textarea" />
+        </el-form-item>
+        <el-form-item label="景点图片">
+          <el-input v-model="form1.sightImage" />
+        </el-form-item>
+        <el-form-item label="地理位置">
+          <el-input v-model="form1.location" />
+        </el-form-item>
+        <el-form-item label="游览方式">
+          <el-input v-model="form1.visitWay" />
+        </el-form-item>
+        <el-form-item label="建议时长">
+          <el-input v-model="form1.suggestTime" />
+        </el-form-item>
+        <el-form-item label="开放时间">
+          <el-input v-model="form1.openingTime" />
+        </el-form-item>
+        <el-form-item label="小贴士">
+          <el-input v-model="form1.tip" type="textarea" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="addDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitAdd">确认</el-button>
+      </template>
+    </el-dialog>
 
     <!-- Pagination -->
     <div class="pagination-wrapper">
@@ -231,23 +223,79 @@ import { ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import FilterBar from "@/components/FilterBar/index.vue";
 
-import { getAttractionList } from "../../api/attraction";
+import { getAttractionList, addAttraction, updateAttraction, deleteAttraction } from "../../api/attraction";
+
+
 //获取数据
 const TableData = ref([]);
-const loadAttractionData = async (data: any) => {
-  const params = {
-    pageNum: currentPage.value,
-    pageSize: pageSize.value,
-    ...data,
-  };
-  const res = await getAttractionList(params);
+const loadAttractionData = async (data:any) => {
+  const res = await getAttractionList(data);
   TableData.value = res.data.data.records;
   total.value = res.data.data.total;
 };
-onMounted(() => {
-  loadAttractionData({ pageNum: 1 });
-});
-
+// 在methods中添加handleFilter方法
+const handleFilter = () => {
+  // 构造筛选参数
+  const filterParams = {
+    ...filters.value,
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+  };
+  // 调用接口获取筛选数据
+  loadAttractionData(filterParams);
+};
+// 筛选配置
+const filterOptions = {
+  destinationId: {
+    type: "input",
+    label: "目的地ID",
+    placeholder: "请输入目的地ID",
+  },
+  visitWay: {
+    type: "select",
+    label: "游览方式",
+    placeholder: "请选择游览方式",
+    options: [
+      { label: "步行", value: "walk" },
+      { label: "自驾", value: "drive" },
+      { label: "公共交通", value: "public" },
+    ],
+  },
+  suggestTime: {
+    type: "input",
+    label: "建议时长",
+    placeholder: "请输入建议游览时长(小时)",
+  },
+  cityName: {
+    type: "input",
+    label: "城市名称",
+    placeholder: "请输入城市名称",
+  },
+};
+// 分页和筛选数据
+// 修改filters的定义
+const filters = ref([
+  {
+    type: "destinationId",
+    model: "",
+    placeholder: "请输入目的地ID",
+  },
+  {
+    type: "visitWay",
+    model: "",
+    placeholder: "请选择游览方式",
+  },
+  {
+    type: "suggestTime",
+    model: "",
+    placeholder: "请输入建议时长",
+  },
+  {
+    type: "cityName",
+    model: "",
+    placeholder: "请输入城市名称",
+  },
+]);
 // Reactive data
 const activeTab = ref("all");
 const currentPage = ref(1);
@@ -269,7 +317,7 @@ const form = ref({
   tip: "",
 });
 
-const openEditDialog = (row) => {
+const openEditDialog = (row:any) => {
   currentRow.value = row;
   form.value = {
     id: row.id,
@@ -285,30 +333,39 @@ const openEditDialog = (row) => {
   };
   editDialogVisible.value = true;
 };
-
-const handleDelete = async (row) => {
+//删除
+const handleDelete = async (row:any) => {
   try {
     await ElMessageBox.confirm("确定要删除该景点吗？", "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning",
     });
-    await $http.delete(`/sightDetail/${row.id}`);
+    await deleteAttraction(row.id);
     ElMessage.success("删除成功");
-    loadAttractionData({}); // 刷新列表
+    const params = {
+    ...filters.value,
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+  };
+    loadAttractionData(params); // 刷新列表
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
     }
   }
 };
-
+//编辑
 const submitEdit = async () => {
   try {
-    // await updateSightDetail(form.value);
+    await updateAttraction(form.value);
     ElMessage.success("修改成功");
     editDialogVisible.value = false;
-    loadAttractionData({}); // 刷新列表
+    const params = {...filters.value,
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+  };
+    loadAttractionData(params); // 刷新列表
   } catch (error) {
     ElMessage.error("修改失败");
   }
@@ -317,62 +374,72 @@ const submitEdit = async () => {
 const addDialogVisible = ref(false);
 const form1 = ref({
   id: 0,
-  sightName: '',
-  sightEnglishName: '',
-  sightIntroduction: '',
-  sightImage: '',
-  location: '',
-  visitWay: '',
-  suggestTime: '',
-  openingTime: '',
-  tip: ''
+  sightName: "",
+  sightEnglishName: "",
+  sightIntroduction: "",
+  sightImage: "",
+  location: "",
+  visitWay: "",
+  suggestTime: "",
+  openingTime: "",
+  tip: "",
 });
-
+// 添加
 const handleAdd = () => {
   addDialogVisible.value = true;
   form1.value = {
     id: 0,
-    sightName: '',
-    sightEnglishName: '',
-    sightIntroduction: '',
-    sightImage: '',
-    location: '',
-    visitWay: '',
-    suggestTime: '',
-    openingTime: '',
-    tip: ''
+    sightName: "",
+    sightEnglishName: "",
+    sightIntroduction: "",
+    sightImage: "",
+    location: "",
+    visitWay: "",
+    suggestTime: "",
+    openingTime: "",
+    tip: "",
   };
 };
 
+//提交添加
 const submitAdd = async () => {
   try {
-    const response = await $http.post('/sightDetail', form.value);
-    if (response.code === 200) {
-      ElMessage.success('新增景点成功');
+    const response = await addAttraction(form1.value);
+    console.log(response);
+    
+    if (response.status === 200) {
+      ElMessage.success("新增景点成功");
       addDialogVisible.value = false;
       loadAttractionData({});
     } else {
-      ElMessage.error(response.message || '新增景点失败');
+      ElMessage.error(response.message || "新增景点失败");
     }
   } catch (error) {
-    ElMessage.error('请求失败：' + error.message);
+    ElMessage.error("请求失败：" + error.message);
   }
 };
-
-const handleSizeChange = (val) => {
+//重置
+const handleAll = () => {
+  pageSize.value = 10;
+  currentPage.value = 1;
+  const params = { pageNum: currentPage.value, pageSize: pageSize.value };
+  loadAttractionData(params);
+};
+//分页改变
+const handleSizeChange = (val:number) => {
   pageSize.value = val;
-  loadAttractionData({});
+  const params = { pageNum: currentPage.value, pageSize: pageSize.value };
+  loadAttractionData(params);
 };
-
-const handleCurrentChange = (val) => {
+const handleCurrentChange = (val:number) => {
   currentPage.value = val;
-  loadAttractionData({});
+  const params = { pageNum: currentPage.value, pageSize: pageSize.value };
+  loadAttractionData(params);
 };
-
-// Lifecycle
+//初始化
 onMounted(() => {
-  // Load initial data
-  console.log("User management component mounted");
+  const params = { pageNum: currentPage.value, pageSize: pageSize.value };
+  loadAttractionData(params);
 });
 </script>
 

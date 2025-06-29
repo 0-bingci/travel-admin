@@ -11,21 +11,30 @@
       </el-radio-button>
     </el-radio-group>
     
-    <el-select 
-      v-for="(filter, index) in filters" 
-      :key="index"
-      v-model="filter.model"
-      :placeholder="filter.placeholder"
-      @change="handleFilterChange(filter.type, $event)"
-      style="margin-left: 10px; width: 180px"
-    >
-      <el-option 
-        v-for="item in filterOptions[filter.type]"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
+    <template v-for="(filter, index) in filters" :key="index">
+      <el-select 
+        v-if="filterOptions[filter.type] && (filterOptions[filter.type].type || filterOptions[filter.type].componentType) === 'select'"
+        v-model="filter.model"
+        :placeholder="filter.placeholder"
+        @change="handleFilterChange(filter.type, $event)"
+        style="margin-left: 10px; width: 180px"
+      >
+        <el-option 
+          v-for="item in filterOptions[filter.type].options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      
+      <el-input
+        v-else
+        v-model="filter.model"
+        :placeholder="filter.placeholder"
+        @change="handleFilterChange(filter.type, $event)"
+        style="margin-left: 10px; width: 180px"
       />
-    </el-select>
+    </template>
   </div>
 </template>
 
