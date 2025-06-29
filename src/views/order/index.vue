@@ -7,10 +7,27 @@
     <!-- Filter Tabs -->
     <FilterBar
       v-model:activeTab="activeTab"
-      :filters="customFilters"
+      :filters="filters"
       :filter-options="filterOptions"
       @tab-change="handleTabChange"
       @sort-change="handleSortChange"
+      :tabs="[
+        {
+          value: 'add',
+          label: '新增',
+          handler: handleAdd,
+        },
+        {
+          value: 'all',
+          label: '重置',
+          handler: handleAll,
+        },
+        {
+          value: 'filter',
+          label: '筛选',
+          handler: handleFilter,
+        },
+      ]"
     />
     <!-- User Table -->
     <!-- 订单号 目的地、客服电话、人数、时间、付款金额、订单状态等 -->
@@ -63,7 +80,7 @@
         <template #default="scope">
           <el-button
             plain
-            @click="dialogFormVisible = true"
+            @click="handleEdit(scope.row)"
             type="primary"
             size="small"
           >
@@ -75,32 +92,62 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog v-model="dialogFormVisible" title="Shipping address" width="500">
+    <el-dialog v-model="dialogFormVisible" title="编辑" width="500">
       <el-form :model="form">
         <el-form-item label="行程id" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" />
+          <el-input v-model="form.tripId" autocomplete="off" />
         </el-form-item>
         <el-form-item label="订单号" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" />
+          <el-input v-model="form.orderNo" autocomplete="off" />
         </el-form-item>
         <el-form-item label="用户id" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" />
+          <el-input v-model="form.userId" autocomplete="off" />
         </el-form-item>
         <el-form-item label="订单状态" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" />
+          <el-input v-model="form.orderStatus" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="行程id" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" />
+        <el-form-item label="总金额" :label-width="formLabelWidth">
+          <el-input v-model="form.totalAmount" autocomplete="off" />
         </el-form-item>
         <el-form-item label="目的地id" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off" />
+          <el-input v-model="form.destinationId" autocomplete="off" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">Cancel</el-button>
+          <el-button @click="submitEdit">取消</el-button>
           <el-button type="primary" @click="dialogFormVisible = false">
-            Confirm
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="addDialogFormVisible" title="增加" width="500">
+      <el-form :model="form1">
+        <el-form-item label="行程id" :label-width="formLabelWidth">
+          <el-input v-model="form1.tripId" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="订单号" :label-width="formLabelWidth">
+          <el-input v-model="form1.orderNo" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="用户id" :label-width="formLabelWidth">
+          <el-input v-model="form1.userId" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="订单状态" :label-width="formLabelWidth">
+          <el-input v-model="form1.orderStatus" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="总金额" :label-width="formLabelWidth">
+          <el-input v-model="form1.totalAmount" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="目的地id" :label-width="formLabelWidth">
+          <el-input v-model="form1.destinationId" autocomplete="off" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitAdd">
+            确定
           </el-button>
         </div>
       </template>
@@ -125,11 +172,12 @@ import { reactive, ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 import FilterBar from "@/components/FilterBar/index.vue";
-import { getOrderList } from "../../api/order";
+import { getOrderList, addOrder, deleteOrder, updateOrder } from "../../api/order";
 
 const dialogFormVisible = ref(false);
+const addDialogFormVisible = ref(false);
 const formLabelWidth = "140px";
-const form = reactive({
+const form = ref({
   name: "",
   region: "",
   date1: "",
@@ -139,66 +187,195 @@ const form = reactive({
   resource: "",
   desc: "",
 });
+const form1 = ref({
+  name: "",
+  region: "",
+  date1: "",
+  date2: "",
+  delivery: false,
+  type: [],
+  resource: "",
+  desc: "",
+});
+const submitEdit = async () => {
+  try {
+    await updateOrder(form.value);
+    ElMessage.success("修改成功");
+    dialogFormVisible.value = false;
+    const params = {...filters.value,
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+  };
+    loadOrderData(params); // 刷新列表
+  } catch (error) {
+    ElMessage.error("修改失败");
+  }
+};
 //获取数据
 const TableData = ref([]);
 const loadOrderData = async (data) => {
   try {
     const res = await getOrderList(data);
     TableData.value = res.data.data.records;
+    total.value = res.data.data.total;
   } catch (error) {
     console.error("加载订单数据失败:", error);
   }
 };
 onMounted(() => {
   // Load initial data
-  loadOrderData(1);
-  console.log("User management component mounted");
+  const params={pageSize:10,pageNum:1};
+  loadOrderData(params);
 });
-const filterOptions = ref({
-  destinations: [
-    { label: "北京", value: "beijing" },
-    { label: "上海", value: "shanghai" },
-    { label: "广州", value: "guangzhou" },
-  ],
-  days: [
-    { label: "1天", value: 1 },
-    { label: "2天", value: 2 },
-    { label: "3天", value: 3 },
-  ],
-  types: [
-    { label: "自由行", value: "free" },
-    { label: "跟团游", value: "group" },
-  ],
-  times: [
-    { label: "上午", value: "morning" },
-    { label: "下午", value: "afternoon" },
-  ],
-});
-const customFilters = ref([
-  { type: "price", model: "", placeholder: "价格区间" },
-  { type: "days", model: "", placeholder: "出行日期" },
+// 筛选配置
+const filterOptions = {
+  destinationId: {
+    type: "input",
+    label: "目的地ID",
+    placeholder: "请输入目的地ID",
+  },
+  travelOrderStatus: {
+    type: "select",
+    label: "订单状态",
+    placeholder: "请选择订单状态",
+    options: [
+      { label: "待支付", value: "unpaid" },
+      { label: "已支付", value: "paid" },
+      { label: "已完成", value: "completed" },
+      { label: "已取消", value: "canceled" },
+    ],
+  },
+  tripId: {
+    type: "input",
+    label: "行程ID",
+    placeholder: "请输入行程ID",
+  },
+  userId: {
+    type: "input",
+    label: "用户ID",
+    placeholder: "请输入用户ID",
+  },
+};
+// 分页和筛选数据
+// 修改filters的定义
+const filters = ref([
+  {
+    type: "destinationId",
+    model: "",
+    placeholder: "请输入目的地ID",
+  },
+  {
+    type: "travelOrderStatus",
+    model: "",
+    placeholder: "请选择订单状态",
+  },
+  {
+    type: "tripId",
+    model: "",
+    placeholder: "请输入行程ID",
+  },
+  {
+    type: "userId",
+    model: "",
+    placeholder: "请输入用户ID",
+  },
 ]);
 // Reactive data
 const activeTab = ref("all");
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(17);
+//编辑
+const handleEdit = async (row:any) => { 
+  // currentRow.value = row;
+  form.value = {
+    name: row.orderNo,
+    region: row.destinationId,
+    date1: '',
+    date2: '',
+    delivery: false,
+    type: [],
+    resource: row.orderStatus,
+    desc: row.totalAmount,
+  };
+  dialogFormVisible.value = true;
+};
+//删除
+const handleView = async (row:any) => {
+  try {
+    await ElMessageBox.confirm("确定要删除该景点吗？", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
+    await deleteOrder(row.id);
+    ElMessage.success("删除成功");
+    const params = {
+    ...filters.value,
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+  };
+    loadOrderData(params); // 刷新列表
 
-const handleView = (row) => {
-  ElMessage.info(`查看用户: ${row.username}`);
-  // Implement view logic here
+  } catch (error) {
+    if (error !== "cancel") {
+      ElMessage.error("删除失败");
+    }
+  }
 };
 
-const handleSizeChange = (val) => {
+const handleSizeChange = (val: number) => {
   pageSize.value = val;
-  console.log(`Page size changed to: ${val}`);
-  // Implement page size change logic
+  const params = { pageNum: val, pageSize: pageSize.value };
+  loadOrderData(params);
 };
 
-const handleCurrentChange = (val) => {
+const handleCurrentChange = (val: number) => {
   currentPage.value = val;
-  console.log(`Current page changed to: ${val}`);
-  // Implement page change logic
+  const params = { pageNum: currentPage.value, pageSize: pageSize.value };
+  loadOrderData(params);
+};
+
+const handleAll = () => {
+  currentPage.value = 1;
+  pageSize.value = 10;
+  const params = {
+    pageNum: currentPage.value,
+    pageSize: pageSize.value
+  };
+  // 加载全部数据
+  loadOrderData(params);
+};
+const handleAdd=()=>{
+  addDialogFormVisible.value = true;
+}
+//提交添加
+const submitAdd = async () => {
+  try {
+    const response = await addOrder(form1.value);
+    console.log(response);
+    
+    if (response.status === 200) {
+      ElMessage.success("新增景点成功");
+      addDialogFormVisible.value = false;
+      loadOrderData({});
+    } else {
+      ElMessage.error(response.message || "新增景点失败");
+    }
+  } catch (error) {
+    ElMessage.error("请求失败：" + error.message);
+  }
+};
+
+const handleFilter = () => {
+  // 重置到第一页
+  const params = {
+    ...filters.value,
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+  };
+  // 应用筛选条件加载数据
+  loadOrderData(params);
 };
 </script>
 
