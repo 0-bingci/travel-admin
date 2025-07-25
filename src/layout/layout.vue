@@ -50,7 +50,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+              <!-- <el-dropdown-item command="profile">个人中心</el-dropdown-item> -->
               <el-dropdown-item command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -82,23 +82,6 @@ const menuConfig = [
     index: "/home",
     icon: Document,
     title: "首页",
-  },
-  {
-    index: "1",
-    icon: Location,
-    title: "用户管理",
-    children: [
-      {
-        index: "/users/list",
-        icon: Document,
-        title: "用户列表",
-      },
-      {
-        index: "/users/role",
-        icon: Document,
-        title: "角色管理",
-      },
-    ],
   },
   {
     index: "2",

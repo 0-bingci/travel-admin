@@ -9,8 +9,6 @@
       v-model:activeTab="activeTab"
       :filters="filters"
       :filter-options="filterOptions"
-      @tab-change="handleTabChange"
-      @sort-change="handleSortChange"
       :tabs="[
         {
           value: 'add',
@@ -168,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 import FilterBar from "@/components/FilterBar/index.vue";
@@ -178,24 +176,20 @@ const dialogFormVisible = ref(false);
 const addDialogFormVisible = ref(false);
 const formLabelWidth = "140px";
 const form = ref({
-  name: "",
-  region: "",
-  date1: "",
-  date2: "",
-  delivery: false,
-  type: [],
-  resource: "",
-  desc: "",
+  tripId: "",
+  orderNo: "",
+  userId: "",
+  orderStatus: "",
+  totalAmount: "",
+  destinationId: "",
 });
 const form1 = ref({
-  name: "",
-  region: "",
-  date1: "",
-  date2: "",
-  delivery: false,
-  type: [],
-  resource: "",
-  desc: "",
+  tripId: "",
+  orderNo: "",
+  userId: "",
+  orderStatus: "",
+  totalAmount: "",
+  destinationId: "",
 });
 const submitEdit = async () => {
   try {
@@ -209,11 +203,12 @@ const submitEdit = async () => {
     loadOrderData(params); // 刷新列表
   } catch (error) {
     ElMessage.error("修改失败");
+    dialogFormVisible.value = false;
   }
 };
 //获取数据
 const TableData = ref([]);
-const loadOrderData = async (data) => {
+const loadOrderData = async (data: any) => {
   try {
     const res = await getOrderList(data);
     TableData.value = res.data.data.records;
@@ -284,21 +279,22 @@ const filters = ref([
 const activeTab = ref("all");
 const currentPage = ref(1);
 const pageSize = ref(10);
-const total = ref(17);
+const total = ref(0);
 //编辑
 const handleEdit = async (row:any) => { 
   // currentRow.value = row;
   form.value = {
-    name: row.orderNo,
-    region: row.destinationId,
-    date1: '',
-    date2: '',
-    delivery: false,
-    type: [],
-    resource: row.orderStatus,
-    desc: row.totalAmount,
+    tripId: row.tripId || '',
+    orderNo: row.orderNo || '',
+    userId: row.userId || '',
+    orderStatus: row.orderStatus || '',
+    totalAmount: row.totalAmount || '',
+    destinationId: row.destinationId || '',
   };
+  console.log(row);
+  
   dialogFormVisible.value = true;
+
 };
 //删除
 const handleView = async (row:any) => {
@@ -360,9 +356,9 @@ const submitAdd = async () => {
       addDialogFormVisible.value = false;
       loadOrderData({});
     } else {
-      ElMessage.error(response.message || "新增景点失败");
+      ElMessage.error("新增景点失败");
     }
-  } catch (error) {
+  } catch (error:any) {
     ElMessage.error("请求失败：" + error.message);
   }
 };

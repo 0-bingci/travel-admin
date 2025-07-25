@@ -62,12 +62,17 @@
         align="center"
         :show-overflow-tooltip="true"
       />
-      <el-table-column
-        prop="sightImage"
-        label="景点图片"
-        width="120"
-        align="center"
-      />
+      <el-table-column label="景点图片" width="120" align="center">
+        <template #default="scope">
+          <el-avatar 
+            :size="60" 
+            :src="scope.row.sightImage" 
+            shape="square" 
+            @click="handlePreview(scope.row.sightImage)"
+            style="cursor: pointer"
+          />
+        </template>
+      </el-table-column>
       <el-table-column
         prop="location"
         label="景点的地理位置"
@@ -144,7 +149,26 @@
           <el-input type="textarea" v-model="form.sightIntroduction"></el-input>
         </el-form-item>
         <el-form-item label="景点图片">
-          <el-input v-model="form.sightImage"></el-input>
+          <el-upload
+            class="avatar-uploader"
+            action="/api/upload"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <div class="image-container">
+              <img v-if="form.sightImage" :src="form.sightImage" class="avatar" />
+              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+              <div v-if="form.sightImage" class="image-actions">
+                <el-button circle @click.stop="handlePreview(form.sightImage)">
+                  <el-icon><ZoomIn /></el-icon>
+                </el-button>
+                <el-button circle @click.stop="form.sightImage = ''">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </div>
+            </div>
+          </el-upload>
         </el-form-item>
         <el-form-item label="地理位置">
           <el-input v-model="form.location"></el-input>
@@ -179,7 +203,26 @@
           <el-input v-model="form1.sightIntroduction" type="textarea" />
         </el-form-item>
         <el-form-item label="景点图片">
-          <el-input v-model="form1.sightImage" />
+          <el-upload
+            class="avatar-uploader"
+            action="/api/upload"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <div class="image-container">
+              <img v-if="form1.sightImage" :src="form1.sightImage" class="avatar" />
+              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+              <div v-if="form1.sightImage" class="image-actions">
+                <el-button circle @click.stop="handlePreview(form1.sightImage)">
+                  <el-icon><ZoomIn /></el-icon>
+                </el-button>
+                <el-button circle @click.stop="form1.sightImage = ''">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </div>
+            </div>
+          </el-upload>
         </el-form-item>
         <el-form-item label="地理位置">
           <el-input v-model="form1.location" />
@@ -219,19 +262,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, h } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { Plus, ZoomIn, Delete } from '@element-plus/icons-vue';
 import FilterBar from "@/components/FilterBar/index.vue";
 
 import { getAttractionList, addAttraction, updateAttraction, deleteAttraction } from "../../api/attraction";
+
+const handleAvatarSuccess = (response: any) => {
+  form.value.sightImage = response.url
+}
+
+const handlePreview = (url: string) => {
+  if (!url) {
+    ElMessage.warning('请先上传图片')
+    return
+  }
+  ElMessageBox({
+    title: '图片预览',
+    message: h('img', { 
+      src: url, 
+      style: 'max-width: 100%; max-height: 80vh; display: block; margin: 0 auto;' 
+    }),
+    customClass: 'image-preview-dialog',
+    showConfirmButton: false,
+    closeOnClickModal: true
+  })
+}
+
+const beforeAvatarUpload = (file: File) => {
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isJPG) {
+    ElMessage.error('图片只能是 JPG/PNG 格式!')
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!')
+  }
+  return isJPG && isLt2M
+}
 
 
 //获取数据
 const TableData = ref([]);
 const loadAttractionData = async (data:any) => {
   const res = await getAttractionList(data);
-  TableData.value = res.data.data.records;
-  total.value = res.data.data.total;
+  console.log(res);
+  
+  TableData.value = res.data.records;
+  total.value = res.data.total;
 };
 // 在methods中添加handleFilter方法
 const handleFilter = () => {
@@ -300,7 +380,7 @@ const filters = ref([
 const activeTab = ref("all");
 const currentPage = ref(1);
 const pageSize = ref(10);
-const total = ref(17);
+const total = ref(0);
 
 const editDialogVisible = ref(false);
 const currentRow = ref({});
@@ -412,9 +492,9 @@ const submitAdd = async () => {
       addDialogVisible.value = false;
       loadAttractionData({});
     } else {
-      ElMessage.error(response.message || "新增景点失败");
+      ElMessage.error("新增景点失败");
     }
-  } catch (error) {
+  } catch (error:any) {
     ElMessage.error("请求失败：" + error.message);
   }
 };
@@ -444,6 +524,51 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.image-container {
+  position: relative;
+  width: 178px;
+  height: 178px;
+}
+
+.avatar-uploader .avatar {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.image-actions {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.image-container:hover .image-actions {
+  opacity: 1;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
 .user-management {
   padding: 20px;
   background-color: #f5f7fa;

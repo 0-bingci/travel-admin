@@ -1,11 +1,11 @@
 <template>
   <div class="filter-bar">
-    <el-radio-group :v-model="activeTab">
+    <el-radio-group v-model="localActiveTab">
       <el-radio-button 
-        v-for="tab in tabs" 
+        v-for="tab in tabs || defaultTabs" 
         :key="tab.value" 
         :label="tab.value"
-        @click="tab.handler"
+        @click="handleTabClick(tab)"
       >
         {{ tab.label }}
       </el-radio-button>
@@ -20,7 +20,7 @@
         style="margin-left: 10px; width: 180px"
       >
         <el-option 
-          v-for="item in filterOptions[filter.type].options"
+          v-for="item in filterOptions[filter.type]?.options || []"
           :key="item.value"
           :label="item.label"
           :value="item.value"
@@ -31,7 +31,7 @@
         v-else
         v-model="filter.model"
         :placeholder="filter.placeholder"
-        @change="handleFilterChange(filter.type, $event)"
+        @input="handleFilterInput(filter.type, $event)"
         style="margin-left: 10px; width: 180px"
       />
     </template>
@@ -39,40 +39,79 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-const props = defineProps({
-  activeTab: { type: String, default: 'all' },
-  filterOptions: { type: Object, required: true },
-  filters: { 
-    type: Array,
-    default: () => []
+interface FilterOption {
+  type?: string
+  componentType?: string
+  options?: Array<{ label: string; value: string }>
+}
+
+interface Filter {
+  type: string
+  model: string
+  placeholder: string
+}
+
+interface Tab {
+  value: string
+  label: string
+  handler?: () => void
+}
+
+const props = defineProps<{
+  activeTab?: string
+  filterOptions: Record<string, FilterOption>
+  filters?: Filter[]
+  tabs?: Tab[]
+}>()
+
+const defaultTabs: Tab[] = [
+  { 
+    value: 'add', 
+    label: '增加',
+    handler: () => console.log('add button clicked')
   },
-  tabs: {
-    type: Array,
-    default: () => [
-      { 
-        value: 'add', 
-        label: '增加',
-        handler: () => console.log('add button clicked')
-      },
-      { 
-        value: 'all', 
-        label: '全部',
-        handler: () => console.log('all button clicked')
-      },
-      { 
-        value: 'filter', 
-        label: '筛选',
-        handler: () => console.log('filter button clicked')
-      }
-    ]
+  { 
+    value: 'all', 
+    label: '全部',
+    handler: () => console.log('all button clicked')
+  },
+  { 
+    value: 'filter', 
+    label: '筛选',
+    handler: () => console.log('filter button clicked')
   }
+]
+
+const emit = defineEmits(['update:activeTab', 'tab-change', 'sort-change'])
+
+// 本地活动标签，用于双向绑定
+const localActiveTab = ref(props.activeTab || 'all')
+
+// 监听props.activeTab的变化
+watch(() => props.activeTab, (newVal) => {
+  localActiveTab.value = newVal || 'all'
 })
 
-const emit = defineEmits(['sort-change'])
+// 监听localActiveTab的变化并更新父组件
+watch(localActiveTab, (newVal) => {
+  emit('update:activeTab', newVal)
+})
+
+const handleTabClick = (tab: Tab) => {
+  localActiveTab.value = tab.value
+  emit('tab-change', tab.value)
+  if (tab.handler && typeof tab.handler === 'function') {
+    tab.handler()
+  }
+}
 
 const handleFilterChange = (type: string, value: string) => {
+  emit('sort-change', { type, value })
+}
+
+const handleFilterInput = (type: string, value: string) => {
   emit('sort-change', { type, value })
 }
 </script>

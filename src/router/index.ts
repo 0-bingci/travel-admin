@@ -1,4 +1,4 @@
-import { createWebHistory, createRouter, type RouteRecordRaw } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 import Layout from '@/layout/layout.vue'
 import Login from '@/views/login/index.vue'
 

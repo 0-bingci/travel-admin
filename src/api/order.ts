@@ -10,5 +10,5 @@ export function updateOrder( data: any) {
   return service.post(`/travelOrder/`, data);
 }
 export function deleteOrder(orderId: string) {
-  return service.delete(`/travelOrder/deleteTravelOrder/${orderId}`);
+  return service.delete(`/travelOrder/deleteTravelOrder?id=${orderId}`);
 }
